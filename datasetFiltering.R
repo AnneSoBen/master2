@@ -113,4 +113,43 @@ eukRawAbOceanArctic = subset(eukRawAb, Fraction %in% c("3-20","5-20","20-180","1
 
 eukRawAbOceanArctic = subset(eukRawAbOceanArctic, Sample %in% list3_5_2000)
 
+######
+
+# remove the columns we don't need to aggregate abundances of the three fractions (Row.names, Fraction, Template, Pangaea_sample_id, depth, Station, Region)
+eukRawAbOceanArcticFP1 = eukRawAbOceanArctic[,-c(1,3:8)]
+
+# change the type of columns to sum the abundances
+for (i in colnames(eukRawAbOceanArcticFP1)){
+	if (i=="Sample"){
+		eukRawAbOceanArcticFP1[,i] = as.character(eukRawAbOceanArcticFP1[,i])
+	}
+	else{
+		eukRawAbOceanArcticFP1[,i] = as.numeric(as.character(eukRawAbOceanArcticFP1[,i]))
+	}
+
+} 
+
+# sum the abundances of each sample
+eukRawAbOceanArcticFP = aggregate(.~Sample, data = eukRawAbOceanArcticFP1, sum)
+rownames(eukRawAbOceanArcticFP) = eukRawAbOceanArcticFP$Sample
+eukRawAbOceanArcticFP = eukRawAbOceanArcticFP[,-1]
+# 3946 lineages, 105 samples (with fractions pooled)
+
+# normalization
+eukNormAbOceanArcticFP = eukRawAbOceanArcticFP/rowSums(eukRawAbOceanArcticFP)
+
+# remove lineages with abundance = 0
+eukNormAbOceanArcticFP = eukNormAbOceanArcticFP[,-which(colSums(eukNormAbOceanArcticFP)==0)]
+# 2919 lineages, 105 samples
+
+saveRDS(eukNormAbOceanArcticFP, "eukNormAbOceanArcticFP.rds")
+
+eukNormAbOceanArcticFPR = merge(eukNormAbOceanArcticFP, sampleDepthStationRegion, by.x = "row.names", by.y = "Sample", all.x = FALSE, all.y = FALSE)
+
+saveRDS(eukNormAbOceanArcticFPR, "eukNormAbOceanArcticFPR.rds")
+
+
+
+
+
 
