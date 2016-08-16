@@ -83,14 +83,13 @@ for (i in listSamples) {
 
 # 3/5-2000
 mat2 = as.data.frame(mat)
-mat2$sum1 = rowSums(mat2[,c(9,11:13)])
-mat2$sum2 = rowSums(mat2[,c(10:13)])
+mat2$sum1 = rowSums(mat2[,c(9,11,13)])
+mat2$sum2 = rowSums(mat2[,c(10,11,13)])
 
 list3_2000 = rownames(mat2[mat2$sum1 >= 3,])
 list5_2000 = rownames(mat2[mat2$sum2 >= 3,])
 
 # "S124SUR" and "S153MIX" are in the two lists, I choose to remove them from list3_2000
-
 rm = c("S124SUR", "S153MIX")
 list3_2000 = list3_2000[!list3_2000 %in% rm]
 
@@ -129,7 +128,7 @@ for (i in colnames(eukRawAbOceanArcticFP1)){
 
 } 
 
-# sum the abundances of each sample
+# sum the abundances of each sample (=station + depth)
 eukRawAbOceanArcticFP = aggregate(.~Sample, data = eukRawAbOceanArcticFP1, sum)
 rownames(eukRawAbOceanArcticFP) = eukRawAbOceanArcticFP$Sample
 eukRawAbOceanArcticFP = eukRawAbOceanArcticFP[,-1]
