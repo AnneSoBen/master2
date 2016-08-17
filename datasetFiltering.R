@@ -147,7 +147,23 @@ eukNormAbOceanArcticFPR = merge(eukNormAbOceanArcticFP, sampleDepthStationRegion
 
 saveRDS(eukNormAbOceanArcticFPR, "eukNormAbOceanArcticFPR.rds")
 
+listArctic = as.character(sampleDepthStationRegion[sampleDepthStationRegion$Region == "AO",]$Sample)
 
+remove = c("S155DCM", "S145SUR", "S155SUR", "S81DCM", "S82SUR", "S90SUR", "S87SUR", "S86SUR")
+listArcticPlus = c(listArctic, remove)
+
+saveRDS(listArcticPlus, "listArcticPlus.rds")
+eukNormAbArcticPlusFP = subset(eukNormAbOceanArcticFP, rownames(eukNormAbOceanArcticFP) %in% listArcticPlus)
+
+saveRDS(eukNormAbArcticPlusFP, "eukNormAbArcticPlusFP.rds")
+
+listOcean = as.character(sampleDepthStationRegion[sampleDepthStationRegion$Region != "AO",]$Sample)
+
+listOceanLess = listOcean[!listOcean %in% remove]
+saveRDS(listOceanLess, "listOceanLess.rds")
+eukNormAbOceanLessFP = subset(eukNormAbOceanArcticFP, rownames(eukNormAbOceanArcticFP) %in% listOceanLess)
+
+saveRDS(eukNormAbOceanLessFP, "eukNormAbOceanLessFP.rds")
 
 
 
