@@ -29,7 +29,7 @@ gdBarEuk = gdBarEuk[!gdBarEuk$taxogroup %in% c("Bacteria","Archaea"),]
 # barcodes with pid < 97% are considered as unknown
 levels(gdBarEuk$lineage) <- c(levels(gdBarEuk$lineage), "unknown")
 gdBarEuk$lineage[gdBarEuk$pid < 97] = "unknown"
-gdBarEuk$lineage[gdBarEuk$lineage %in% c("Eukaryota", "Eukaryota|environmental samples", "Eukaryota|environmental samples|uncultured eukaryote", "Eukaryota|environmental samples|uncultured marine eukaryote", "Eukaryota|environmental samples|uncultured rumen protozoa", "Eukaryota|Eukaryota_X|Eukaryota_X+sp.", "Eukaryota|Orphans")] = "unknown"
+gdBarEuk$lineage[gdBarEuk$lineage %in% c("Eukaryota", "Eukaryota|environmental samples", "Eukaryota|environmental samples|uncultured eukaryote", "Eukaryota|environmental samples|uncultured marine eukaryote", "Eukaryota|environmental samples|uncultured rumen protozoa")] = "unknown"
 
 # remove taxogroup and pid
 gdBarEuk = gdBarEuk[,-c(1,3)]
