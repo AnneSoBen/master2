@@ -63,7 +63,7 @@ saveRDS(addInfos, "addInfos.rds")
 eukRawAb = merge(gdBarEukPoolT, addInfos, by.x = "row.names", by.y = "Sample_seq_id")
 
 # move the columns at the begining of the data frame
-eukRawAb = eukRawAb[,c(1,3948:3954,2:3947)]
+eukRawAb = eukRawAb[,c(1,3950:3956,2:3949)]
 saveRDS(eukRawAb, "eukRawAb.rds")
 
 # keep the DNA samples (so remove the RNA and WGA/DNA samples)
