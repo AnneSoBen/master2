@@ -68,7 +68,7 @@ saveRDS(eukRawAb, "eukRawAb.rds")
 
 # keep the DNA samples (so remove the RNA and WGA/DNA samples)
 eukRawAb = subset(eukRawAb, Template == "DNA")
-# 3946 lineages, 917 samples
+# 3948 lineages, 917 samples
 
 ###### COUNT THE NUMBER OF FRACTIONS AVAILABLE FOR EACH SAMPLE-DEPTH
 
@@ -112,7 +112,7 @@ eukRawAb = eukRawAb[!eukRawAb$Depth %in% c("ZZZ","FSW","INT"),]
 
 # remove S152MIX, S153MIX, S175MIX, S168MIX
 eukRawAb = eukRawAb[!eukRawAb$Sample %in% c("S152MIX", "S153MIX", "S175MIX", "S168MIX"),]
-# 3946 lineages, 881 samples
+# 3948 lineages, 881 samples
 saveRDS(eukRawAb, "eukRawAb2.rds")
 
 # prepare the abundance table with fractions
