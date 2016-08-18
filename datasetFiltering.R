@@ -9,6 +9,8 @@
 gdBarEukRaw = read.delim("globaldataset.barcode")
 # 6 294 617 barcodes, 1085 samples
 
+saveRDS(gdBarEukRaw, "globaldataset.barcode.v20151126.rds")
+
 # remove columns we don't need :
 # column 1 = md5sum (barcode id)
 # column 2 = totab (total abundance of the barcode) - as we remove samples, the total is not the same
@@ -32,14 +34,19 @@ gdBarEuk$lineage[gdBarEuk$lineage %in% c("Eukaryota", "Eukaryota|environmental s
 # remove taxogroup and pid
 gdBarEuk = gdBarEuk[,-c(1,3)]
 
+saveRDS(gdBarEuk, "gdBarEuk.rds")
+
 # sum the abundances of each lineage
 gdBarEukPool = aggregate(.~lineage, data = gdBarEuk, sum)
 # 3948 lineages, 1046 samples
+saveRDS(gdBarEukPool, "gdBarEukPool.rds")
 
 # transpose the data frame
 gdBarEukPoolT = as.data.frame(t(gdBarEukPool))
 colnames(gdBarEukPoolT) = gdBarEukPool$lineage
 gdBarEukPoolT = gdBarEukPoolT[2:nrow(gdBarEukPoolT),]
+
+saveRDS(gdBarEukPoolT, "gdBarEukPoolT.rds")
 
 # load sampleIdToPangaeaId and sampleDepthStationRegion
 sampleIdToPangaeaId = read.delim("sampleIdToPangaeaId.tsv")
@@ -50,12 +57,14 @@ sampleDepthStationRegion = read.csv("sampleDepthStationRegion.csv", sep = " ")
 # we get a data frame with:
 # Sample_seq_id Sample Fraction Template Pangaea_sample_id Depth Station Region 
 addInfos = merge(sampleIdToPangaeaId, sampleDepthStationRegion, by.x = "Sample", by.y = "Sample")
+saveRDS(addInfos, "addInfos.rds")
 
 # add the corresponding columns with stations names, depth and fraction size
 eukRawAb = merge(gdBarEukPoolT, addInfos, by.x = "row.names", by.y = "Sample_seq_id")
 
 # move the columns at the begining of the data frame
 eukRawAb = eukRawAb[,c(1,3948:3954,2:3947)]
+saveRDS(eukRawAb, "eukRawAb.rds")
 
 # keep the DNA samples (so remove the RNA and WGA/DNA samples)
 eukRawAb = subset(eukRawAb, Template == "DNA")
@@ -104,6 +113,7 @@ eukRawAb = eukRawAb[!eukRawAb$Depth %in% c("ZZZ","FSW","INT"),]
 # remove S152MIX, S153MIX, S175MIX, S168MIX
 eukRawAb = eukRawAb[!eukRawAb$Sample %in% c("S152MIX", "S153MIX", "S175MIX", "S168MIX"),]
 # 3946 lineages, 881 samples
+saveRDS(eukRawAb, "eukRawAb2.rds")
 
 # prepare the abundance table with fractions
 
