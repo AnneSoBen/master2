@@ -9,7 +9,7 @@ library(vegan)
 
 # load abundance files (prepared with "datasetFiltering.R")
 data = readRDS("eukNormAbOceanArcticFP.rds")
-dataRegions = readRDS("eukNormAbOceanArcticFPR.rds")
+dataRegions = readRDS("eukNormAbOceanArcticFPR.rds") # contains information about the regions (e.g. Arctic Ocean, South Pacific Ocean)
 
 dataRegions$Depth = factor(dataRegions$Depth)
 
