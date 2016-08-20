@@ -7,7 +7,7 @@
 # load vegan library
 library(vegan)
 
-# read the abundances files
+# load abundance files (prepared with "datasetFiltering.R")
 data = readRDS("eukNormAbOceanArcticFP.rds")
 dataRegions = readRDS("eukNormAbOceanArcticFPR.rds")
 
