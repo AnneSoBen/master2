@@ -6,6 +6,7 @@
 #     /\ /\
 #    (=^_^=)
 # from Langfelder and Horvath 2008: https://labs.genetics.ucla.edu/horvath/CoexpressionNetwork/Rpackages/WGCNA/
+# ++ thanks to Sam for his help
 
 ###
 
@@ -367,7 +368,6 @@ dev.off()
 
 for (i in names(mdma)) {
   print (i)
-  # Define variable
   env = as.data.frame(mdma[,i])
   colnames(env) = i
   # names (colors) of the modules
@@ -377,22 +377,16 @@ for (i in names(mdma)) {
   
   names(geneModuleMembership) = paste("MM", modNames, sep="");
   names(MMPvalue) = paste("p.MM", modNames, sep="");
-  # pearson
   geneTraitSignificance = as.data.frame(cor(taxdma, env, use = "p"));
-  # spearman
-  #geneTraitSignificance = as.data.frame(cor(taxdma, env, method= "spearman", use="na.or.complete"))
   
   GSPvalue = as.data.frame(corPvalueStudent(as.matrix(geneTraitSignificance), nSamples));
   names(geneTraitSignificance) = paste("GS.", names(env), sep="");
   names(GSPvalue) = paste("p.GS.", names(env), sep="");
   
   if (i != "CarbonExport") { next }
-  #if (i != "FeT.5m.mean") { next }
 
   ## plot geneMM vs gene significance
-  # spearman
   pdf(paste(plotsDirectory, "/", basename,i,".pdf", sep=""))
-  #par(mfrow = c(15,4), mar = rep(2, 4));
   flux.pv = c()
   for (module in modNames) {
     column = match(module, modNames);
