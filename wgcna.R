@@ -2,14 +2,14 @@
 ##### DATA INPUT AND CLEANING #####
 ###################################
 
+# Anne-Sophie Benoiston --- march/may 2016
+#     /\ /\
+#    (=^_^=)
+# from Langfelder and Horvath 2008: https://labs.genetics.ucla.edu/horvath/CoexpressionNetwork/Rpackages/WGCNA/
 
-
-# from Langfelder and Horvath 2008
+###
 
 ###########
-### HOW TO:
-# R --vanilla --args abundancesfile.tsv traitsfile.tsv < wgcna.R
-
 # both data files are tab separated files (.tsv)
 
 # structure of file abundancesfile.tsv:
@@ -29,31 +29,25 @@
 # traits, in our study, are environmental parameters measured in each sample
 #########
 
-
-# the function commandArgs scans the arguments which have been supplied when the current R session was invoked
-#args <- commandArgs(trailingOnly=TRUE)
-#abundancesfile <- args[1]
-#traitsfile <- args[2]
+abundancesfile = "eukNormAbOceanLessFP.rds"
+traitsfile = "envdataposterOO.rds"
 
 # create a "basename" for plots file names from abundancesfile
-
 # remove extension
 library(tools)
 basename<-file_path_sans_ext(abundancesfile)
-
 # create a directory for the plots
-plotsDirectory = paste(basename,"Plots", sep="")
+plotsDirectory = paste(basename,"PlotsTestScript", sep="")
 if (!file.exists(plotsDirectory)){
   dir.create(plotsDirectory)
 }
 
-## LOAD PACKAGES
+## LOAD LIBRARIES
 library(WGCNA)
+allowWGCNAThreads(16)
 library(vegan)
 library(gtools)
-
-abundancesfile = "eukNormAbArcticFP.tsv"
-traitsfile = "envdataok.tsv"
+library(flashClust)
 
 #=====================================================================================
 #
@@ -61,25 +55,20 @@ traitsfile = "envdataok.tsv"
 #
 #=====================================================================================
 
-
 # The following setting is important, do not omit
 options(stringsAsFactors = FALSE);
+
 # Read in the abundances data set
-abundances = read.delim(abundancesfile);
+taxd = readRDS(abundancesfile);
 
-# for eukaryotes : remove samples with missing size fractions
-#abundances = abundances[-c(1,2,5,6,13,25,31,36,38,41,64),]
-
-# assign the rownames to the data frame taxd
-taxd = as.data.frame(abundances[,2:ncol(abundances)])
-rownames(taxd) = abundances[,1]
+# for oligo data set: remove outlier samples (upwelling)
+# rm = c("S67SUR","S93SUR","S6SUR")
+# taxd = abundances[-which(rownames(abundances) %in% rm),]
 
 ## taxd -> species or genes relative abundances (norm. to 1) - samples as rows and species/genes as columns
 ## md   -> environmental data (no transformation) - samples as rows and parameters as columns 
 
-env = read.delim(traitsfile)
-md = as.data.frame(env[,2:ncol(env)])
-rownames(md) = env[,1]
+md = readRDS(traitsfile)
 
 ## intersecting samples on species and env. matrices
 stations = intersect(rownames(taxd), rownames(md))
@@ -177,16 +166,15 @@ text(sft$fitIndices[,1], sft$fitIndices[,5], labels=powers, cex=cex1,col="red")
 dev.off()
 
 # sft$powerEstimate is the first power that reaches the threshold
-sft$powerEstimate
+#sft$powerEstimate
 
 
-max(sft$fitIndices[,2])
+#max(sft$fitIndices[,2])
 
-if (is.na(sft$powerEstimate)){
-    print("THE POWER THRESHOLD IS TOO HIGH! The highest scale-free topology fit index is:")
-    print(max(sft$fitIndices[,2]))
-    q()
-}
+#if (is.na(sft$powerEstimate)){
+#    print("THE POWER THRESHOLD IS TOO HIGH! The highest scale-free topology fit index is:")
+#    print(max(sft$fitIndices[,2]))
+#}
 
 #=====================================================================================
 #
@@ -194,9 +182,8 @@ if (is.na(sft$powerEstimate)){
 #
 #=====================================================================================
 
-
 # calculate the adjacencies, using the right soft-thresholding
-softPower = sft$powerEstimate;
+softPower = 6;
 adjacency = adjacency(log(taxdma+1), power = softPower, type = "signed", corOptions= "method = 'pearson'");
 
 # Turn adjacency into topological overlap matrix, and calculate the corresponding dissimilarity
@@ -308,38 +295,29 @@ MEs = mergedMEs;
 ##### CORRELATION TO ENVIRONMENTAL PARAMETERS #####
 ###################################################
 
+
 # Define numbers of genes and samples
 nGenes = ncol(taxdma);
 nSamples = nrow(taxdma);
 # Recalculate MEs with color labels
 MEs0 = moduleEigengenes(taxdma, moduleColors)$eigengenes
 MEs = orderMEs(MEs0)
+
+
+# Pearson correlation
 moduleTraitCor = cor(MEs, mdma, use = "p");
+# Spearman correlation
+#moduleTraitCor = cor(MEs, mdma.num, method= "spearman", use="na.or.complete");
+
 moduleTraitPvalue = corPvalueStudent(moduleTraitCor, nSamples);
 
-# take a look at p-values before correction
-typeof(moduleTraitPvalue)
-moduleTraitPvalue
+# Will display correlations and their p-values
+textMatrix = paste(signif(moduleTraitCor, 2), "\n(",
+                   signif(moduleTraitPvalue, 1), ")", sep = "");
+dim(textMatrix) = dim(moduleTraitCor)
 
-# function that allows to use the BH method for correction of FDR
-p.adjust.BH <- function(x){
-  p.adjust(x, method = "BH")
-}
-
-y = apply(moduleTraitPvalue, 2, p.adjust.BH)
-moduleTraitPvalue = y
-
-# take a look at p-values after correction
-typeof(moduleTraitPvalue)
-moduleTraitPvalue
-
-mtpv = as.data.frame(moduleTraitPvalue)
-modules = rownames(mtpv[mtpv[,interestVariable]<0.05,])
-modules
-typeof(modules)
-
-# pdf
-pdf(file = paste(plotsDirectory, "/", basename, "ModuleTraitRelationships.pdf", sep = ""), width = 10, height = 9);
+# Display the correlation values within a heatmap plot
+pdf(file = paste(plotsDirectory, "/", basename, "ModuleTraitRelationships.pdf", sep = ""), width = 9, height = 9);
 # Will display correlations and their p-values
 textMatrix =  paste(signif(moduleTraitCor, 2), "\n(",
                            signif(moduleTraitPvalue, 1), ")", sep = "");
@@ -380,4 +358,60 @@ labeledHeatmap(Matrix = moduleTraitCor,
                main = paste("Module-trait relationships"))
 dev.off()
 
+# Plot the relationships among the eigengenes and the trait
 
+# plot eigengene traits adjacency heatmap
+pdf(file = paste(plotsDirectory, "/", basename, "TOMeigengenenet.pdf", sep = ""), wi = 15, he = 15)
+plotEigengeneNetworks(MEs, moduleLabels)
+dev.off()
+
+for (i in names(mdma)) {
+  print (i)
+  # Define variable
+  env = as.data.frame(mdma[,i])
+  colnames(env) = i
+  # names (colors) of the modules
+  modNames = substring(names(MEs), 3)
+  geneModuleMembership = as.data.frame(cor(taxdma, MEs, use = "p"));
+  MMPvalue = as.data.frame(corPvalueStudent(as.matrix(geneModuleMembership), nSamples));
+  
+  names(geneModuleMembership) = paste("MM", modNames, sep="");
+  names(MMPvalue) = paste("p.MM", modNames, sep="");
+  # pearson
+  geneTraitSignificance = as.data.frame(cor(taxdma, env, use = "p"));
+  # spearman
+  #geneTraitSignificance = as.data.frame(cor(taxdma, env, method= "spearman", use="na.or.complete"))
+  
+  GSPvalue = as.data.frame(corPvalueStudent(as.matrix(geneTraitSignificance), nSamples));
+  names(geneTraitSignificance) = paste("GS.", names(env), sep="");
+  names(GSPvalue) = paste("p.GS.", names(env), sep="");
+  
+  if (i != "CarbonExport") { next }
+  #if (i != "FeT.5m.mean") { next }
+
+  ## plot geneMM vs gene significance
+  # spearman
+  pdf(paste(plotsDirectory, "/", basename,i,".pdf", sep=""))
+  #par(mfrow = c(15,4), mar = rep(2, 4));
+  flux.pv = c()
+  for (module in modNames) {
+    column = match(module, modNames);
+    moduleGenes = moduleColors==module;
+    #if (module == "grey") {next}
+    verboseScatterplot(abs(geneModuleMembership[moduleGenes, column]),
+                       abs(geneTraitSignificance[moduleGenes, 1]),
+                       xlab = paste("Module Membership in", module, "module"),
+                       ylab = paste("Lineage significance for", i),
+                       main = paste("Module membership vs. gene significance\n"),
+                       pch = 16, cex.main = 1.2, cex.lab = 1.2, cex.axis = 1.2, col = module)
+    
+    pv = corPvalueStudent(cor(abs(geneModuleMembership[moduleGenes, column]), abs(geneTraitSignificance[moduleGenes, 1]), use = "p"), length(geneTraitSignificance[moduleGenes, 1]))
+    flux.pv = c(flux.pv, pv)
+    flux.pv.adjust = p.adjust(flux.pv, method="BH")
+      print(module)
+  }
+  print (flux.pv)
+  print (flux.pv.adjust)
+  dev.off()
+  
+}
