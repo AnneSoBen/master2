@@ -5,7 +5,7 @@ This repository contains additional documents to my Master 2 thesis.
 
 Four R scripts are available:
 
--- datasetFiltering.R # contains all the steps I folleowed to clean the eukaryotic metabarcoding data set
+-- datasetFiltering.R # contains all the steps I followed to clean the eukaryotic metabarcoding data set
 
 -- nmds.R # contains the R code for performing nmds
 
