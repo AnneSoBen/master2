@@ -64,7 +64,7 @@ taxd = readRDS(abundancesfile);
 
 # for oligo data set: remove outlier samples (upwelling)
 # rm = c("S67SUR","S93SUR","S6SUR")
-# taxd = abundances[-which(rownames(abundances) %in% rm),]
+# taxd = taxd[-which(rownames(taxd) %in% rm),]
 
 ## taxd -> species or genes relative abundances (norm. to 1) - samples as rows and species/genes as columns
 ## md   -> environmental data (no transformation) - samples as rows and parameters as columns 
