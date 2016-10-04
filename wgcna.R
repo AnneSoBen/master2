@@ -409,3 +409,28 @@ for (i in names(mdma)) {
   dev.off()
   
 }
+
+####################################
+##### EXPORTATION TO CYTOSCAPE #####
+####################################
+
+# Select modules
+modules = c("red")
+# Select module probes
+probes = names(taxdma)
+inModule = is.finite(match(moduleColors, modules))
+modProbes = probes[inModule]
+#modGenes = annot$gene_symbol[match(modProbes, annot$substanceBXH)];
+# Select the corresponding Topological Overlap
+modTOM = TOM[inModule, inModule]
+
+dimnames(modTOM) = list(modProbes, modProbes)
+# Export the network into edge and node list files Cytoscape can read
+cyt = exportNetworkToCytoscape(modTOM,
+  edgeFile = paste(plotsDirectory, "/", basename, "CytoscapeInput-edges-", paste(modules, collapse="-"), ".txt", sep=""),
+  nodeFile = paste(plotsDirectory, "/", basename, "CytoscapeInput-nodes-", paste(modules, collapse="-"), ".txt", sep=""),
+  weighted = TRUE,
+  threshold = 0.02,
+  nodeNames = modProbes,
+  #altNodeNames = modGenes,
+  nodeAttr = moduleColors[inModule]);
