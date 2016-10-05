@@ -30,15 +30,15 @@
 # traits, in our study, are environmental parameters measured in each sample
 #########
 
-abundancesfile = "eukNormAbOceanLessFP.rds"
-traitsfile = "envdataposterOO.rds"
+abundancesfile = "eukNormAbArcticPlusFP.rds"
+traitsfile = "envdataposterAO.rds"
 
 # create a "basename" for plots file names from abundancesfile
 # remove extension
 library(tools)
 basename<-file_path_sans_ext(abundancesfile)
 # create a directory for the plots
-plotsDirectory = paste(basename,"PlotsTestScript", sep="")
+plotsDirectory = paste(basename,"damien", sep="")
 if (!file.exists(plotsDirectory)){
   dir.create(plotsDirectory)
 }
@@ -415,7 +415,7 @@ for (i in names(mdma)) {
 ####################################
 
 # Select modules
-modules = c("red")
+modules = c("greenyellow")
 # Select module probes
 probes = names(taxdma)
 inModule = is.finite(match(moduleColors, modules))
@@ -442,6 +442,19 @@ modadj = adjacency[inModule, inModule]
 cyt = exportNetworkToCytoscape(modadj,
   edgeFile = paste(plotsDirectory, "/", basename, "CytoscapeInput-edges-", paste(modules, collapse="-"), "adj.txt", sep=""),
   nodeFile = paste(plotsDirectory, "/", basename, "CytoscapeInput-nodes-", paste(modules, collapse="-"), "adj.txt", sep=""),
+  weighted = TRUE,
+  threshold = 0.02,
+  nodeNames = modProbes,
+  #altNodeNames = modGenes,
+  nodeAttr = moduleColors[inModule]);
+
+corr = cor(log(taxdma+1))
+modcorr = corr[inModule, inModule]
+
+# Export the network into edge and node list files Cytoscape can read
+cyt = exportNetworkToCytoscape(modcorr,
+  edgeFile = paste(plotsDirectory, "/", basename, "CytoscapeInput-edges-", paste(modules, collapse="-"), "corr.txt", sep=""),
+  nodeFile = paste(plotsDirectory, "/", basename, "CytoscapeInput-nodes-", paste(modules, collapse="-"), "corr.txt", sep=""),
   weighted = TRUE,
   threshold = 0.02,
   nodeNames = modProbes,
