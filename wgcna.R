@@ -434,3 +434,16 @@ cyt = exportNetworkToCytoscape(modTOM,
   nodeNames = modProbes,
   #altNodeNames = modGenes,
   nodeAttr = moduleColors[inModule]);
+
+
+modadj = adjacency[inModule, inModule]
+
+# Export the network into edge and node list files Cytoscape can read
+cyt = exportNetworkToCytoscape(modadj,
+  edgeFile = paste(plotsDirectory, "/", basename, "CytoscapeInput-edges-", paste(modules, collapse="-"), "adj.txt", sep=""),
+  nodeFile = paste(plotsDirectory, "/", basename, "CytoscapeInput-nodes-", paste(modules, collapse="-"), "adj.txt", sep=""),
+  weighted = TRUE,
+  threshold = 0.02,
+  nodeNames = modProbes,
+  #altNodeNames = modGenes,
+  nodeAttr = moduleColors[inModule]);
